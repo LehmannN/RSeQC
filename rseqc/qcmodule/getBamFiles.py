@@ -26,6 +26,19 @@ def isbamfile(infile):
 	else:
 		return False	
 
+
+def isbedfile(infile):
+	'''check if it is bed file, if it is empty'''
+	if os.path.isfile(infile) and infile[-4:].lower() == '.bed':
+		if getsize(infile) != 0:
+			return True
+		else:
+			print >>sys.stderr, "The size of %s is 0! Skip it." % (infile)
+			return False
+	else:
+		return False	
+
+
 def get_bam_files (input,printit=False):
 	bam_files = []	
 	
@@ -60,6 +73,43 @@ def get_bam_files (input,printit=False):
 		for i in bam_files:
 			print i		
 	return bam_files
+
+#same for bed
+def get_bed_files (input,printit=False):
+	bam_files = []
+	
+	#dir
+	if os.path.isdir(input):
+		for root, directories, files in os.walk(input,followlinks=True):
+			full_names = [join(abspath(root), name) for name in files]
+			for fn in full_names:
+				if isbedfile(fn):
+					bam_files.append(fn)
+	#single bam file
+	elif isbedfile(input):
+		bam_files.append(input)
+	#plain text file
+	elif os.path.isfile(input):
+		try:
+			for line in open(input):
+				line = line.strip()
+				if line.startswith('#'):continue
+				if isbedfile(line):
+					bam_files.append(line)
+		except:
+			pass
+	else:
+		tmp = input.split(',')
+		if len(tmp) <2: pass
+		for i in tmp:
+			if isbedfile(i):
+				bam_files.append(i)
+	
+	if printit:
+		for i in bam_files:
+			print i		
+	return bam_files
+
 
 
 if __name__ == '__main__':

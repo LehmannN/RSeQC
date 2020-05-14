@@ -16,5 +16,9 @@
 
 # sample data
 /sample-data/
+data
+test
 
 working.py
+
+*DS_Store
